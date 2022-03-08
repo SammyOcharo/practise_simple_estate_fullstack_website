@@ -1,4 +1,3 @@
-from ast import Not
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -10,7 +9,7 @@ class CustomUserManager(BaseUserManager):
         try:
             validate_email(email)
         except ValidationError:
-            raise (_('You must provide a valid email'))
+            raise ValueError (_('You must provide a valid email'))
     
 
     def create_user(self, username, first_name, last_name, email, password, **extra_fields):
@@ -22,7 +21,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('Users must submit a last name'))
         
         if email:
-            email = self.normalize_email
+            email = self.normalize_email(email)
             self.email_validator(email)
         else:
             raise ValidationError(_('Base User Account: An email address is required'))
@@ -49,10 +48,10 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
 
-        if extra_fields.get("is_staff")is not True:
+        if extra_fields.get("is_staff") is not True:
             raise ValueError (_('Superusers must have is_staff True'))
 
-        if extra_fields.get("is_super")is not True:
+        if extra_fields.get("is_superuser") is not True:
             raise ValueError (_('Superusers must have is_super True'))
 
         if not password:
